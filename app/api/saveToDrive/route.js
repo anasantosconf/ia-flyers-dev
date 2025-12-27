@@ -1,46 +1,6 @@
-import { google } from "googleapis";
-
-export async function POST(req) {
-  try {
-    const body = await req.json();
-    const { content, fileName } = body;
-
-    if (!content || !fileName) {
-      return Response.json(
-        { error: "content e fileName são obrigatórios" },
-        { status: 400 }
-      );
-    }
-
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      ["https://www.googleapis.com/auth/drive"]
-    );
-
-    const drive = google.drive({ version: "v3", auth });
-
-    const response = await drive.files.create({
-      supportsAllDrives: true,
-      requestBody: {
-        name: fileName,
-        parents: [process.env.GOOGLE_SHARED_DRIVE_ID],
-      },
-      media: {
-        mimeType: "text/plain",
-        body: content,
-      },
-    });
-
-    return Response.json({
-      ok: true,
-      fileId: response.data.id,
-    });
-  } catch (err) {
-    return Response.json(
-      { error: "Erro ao salvar no Drive", message: err.message },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return new Response(
+    JSON.stringify({ ok: true }),
+    { headers: { "Content-Type": "application/json" } }
+  );
 }
